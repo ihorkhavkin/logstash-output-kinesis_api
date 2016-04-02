@@ -20,8 +20,11 @@ Gem::Specification.new do |s|
   # Gem dependencies
   s.add_runtime_dependency 'logstash-core', '>= 1.4.0', '< 2.0.0'
   s.add_runtime_dependency 'logstash-mixin-aws'
-  s.add_runtime_dependency 'stud', '~> 0.0.22'
+  s.add_runtime_dependency 'stud', '~> 0.0.19'
   s.add_runtime_dependency 'logstash-codec-plain'
+  s.add_runtime_dependency 'logstash-codec-json'
+  s.add_runtime_dependency 'aws-sdk', '~> 2'
+  s.add_runtime_dependency 'aws-sdk-core', '~> 2'
   s.add_development_dependency 'logstash-devutils'
 
   s.add_development_dependency 'concurrent-ruby', '0.9.1'
