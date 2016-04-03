@@ -9,16 +9,11 @@ class LogStash::Outputs::KinesisApi < LogStash::Outputs::Base
 
   default :codec, 'json'
 
+  # AWS region
+  config :region, :validate => :string, :default => 'us-west-2'
   # Kinesis stream
-  # config :stream_name, :validate => :string, :required => true
-  # Log level
-  # config :log_level, :validate => :string, :default => 'info'
-
-  # CloudWatch metrics configuration
-  # config :metrics_level, :validate => ['none', 'summary', 'detailed'], :default => 'detailed'
-  # config :metrics_namespace, :validate => :string, :default => 'Kinesis'
-  # config :metrics_upload_delay, :validate => :number, :default => 60000
-
+  config :stream_name, :validate => :string, :default => 'development_events_stream'
+  # Event keys to use for Kinesis partition key
   config :event_partition_keys, :validate => :array, :default => []
 
   # AWS region
@@ -26,7 +21,7 @@ class LogStash::Outputs::KinesisApi < LogStash::Outputs::Base
 
   public
   def register
-    @client = Aws::Kinesis::Client.new(region: 'us-west-2')
+    @client = Aws::Kinesis::Client.new(region: @region)
     @codec.on_event(&method(:send_record))
   end # def register
 
@@ -56,11 +51,12 @@ class LogStash::Outputs::KinesisApi < LogStash::Outputs::Base
 
   def send_record(event, payload)
     begin
-      resp = @client.put_record({
-                                   stream_name: 'development_events_stream',
-                                   data: payload,
-                                   partition_key: event['[@metadata][partition_key]'],
-                               })
+      resp = @client.put_record(
+          {
+              stream_name: @stream_name,
+              data: payload,
+              partition_key: event['[@metadata][partition_key]'],
+          })
       @logger.debug('Put record', :response => resp)
     rescue => e
       @logger.warn('Error writing event to Kinesis', :exception => e)
